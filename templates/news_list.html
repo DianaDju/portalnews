@@ -1,0 +1,27 @@
+{% extends 'default.html' %}
+{% load static %}  <!-- Для Bootstrap -->
+{% load custom_filters %}  <!-- Для |censor -->
+
+{% block title %}Список новостей - Portal News{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Все новости (от новых к старым)</h2>
+    {% for news in news_list %}
+    <div class="card mb-3 shadow-sm">  <!-- Bootstrap card для каждой новости -->
+        <div class="card-body">
+            <h5 class="card-title">
+                <a href="{% url 'news:detail' news.id %}" class="text-decoration-none">
+                    {{ news.title|censor }}  <!-- Заголовок с фильтром -->
+                </a>
+            </h5>
+            <p class="card-text"><strong>Дата:</strong> {{ news.time_created|date:"d.m.Y H:i" }}</p>
+            <p class="card-text"><strong>Превью:</strong> {{ news.text|slice:"20"|censor }}...  <!-- 20 символов + фильтр -->
+            </p>
+        </div>
+    </div>
+    {% empty %}
+    <p class="alert alert-info">Нет новостей пока.</p>
+    {% endfor %}
+</div>
+{% endblock %}
