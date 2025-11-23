@@ -1,0 +1,21 @@
+
+
+{% block content %}
+<h1>{{ article.title }}</h1>
+<p>{{ article.content }}</p>
+<p>Автор: {{ article.author }}, Дата: {{ article.time_created }}</p>
+<a href="{% url 'articles:edit' pk=article.pk %}">Редактировать</a> | <a href="{% url 'articles:delete' pk=article.pk %}">Удалить</a>  <!-- Ссылки на редактирование и удаление, добавлено для навигации -->
+
+
+<h2>Комментарии</h2>
+{% for comment in article.comments.all %}
+    <div class="comment">
+        <p>{{ comment.text }}</p>
+        <p>Автор: {{ comment.author }}, Дата: {{ comment.created_at }}</p>
+    </div>
+{% empty %}
+    <p>Комментариев нет.</p>
+{% endfor %}
+
+{% endblock %}
+

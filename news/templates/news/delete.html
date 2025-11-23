@@ -1,0 +1,10 @@
+
+{% block content %}
+<h2>Удалить новость: {{ post.title }}</h2>
+<p>Вы уверены?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Удалить</button>
+    <a href="{% url 'news:detail' pk=post.pk %}">Отмена</a>
+</form>
+{% endblock %}

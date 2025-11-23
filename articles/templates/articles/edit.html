@@ -1,0 +1,13 @@
+
+{% block content %}
+<h2>Редактировать статью: {{ post.title }}</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}  <!-- Форма PostForm с полями title, text и т.д. -->
+    <button type="submit">Сохранить изменения</button>
+    <a href="{% url 'articles:list' %}">Отмена / Назад к списку</a>
+
+<p>Текущий текст: {{ post.text }}</p>
+{% endblock %}
+

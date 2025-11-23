@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 class Author(models.Model):
     """Модель автора, связанная с пользователем Django. Хранит рейтинг автора на основе постов и комментариев."""
-    author_user = models.OneToOneField(User, on_delete=models.CASCADE) # Связь один-к-одному с пользователем
+    author_user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='author_profile')
     rating_author = models.SmallIntegerField(default=0)  # Рейтинг автора, обновляется автоматически
 
     def __str__(self):
@@ -38,14 +38,14 @@ class Category(models.Model):
 
 
 class Post(models.Model):
-    ARTICLE = 'A'
-    NEWS = 'N'
+    ARTICLE = 'AR'
+    NEWS = 'NW'
     TYPE_CHOICES = [
         (ARTICLE, 'Статья'),
         (NEWS, 'Новость'),
     ]
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='post_set')  # Один ко многим с Author
-    post_type = models.CharField(max_length=1, choices=TYPE_CHOICES, default=NEWS)  # Тип: статья или новость
+    post_type = models.CharField(max_length=2, choices=TYPE_CHOICES, default=NEWS)  # Тип: статья или новость
     time_created = models.DateTimeField(auto_now_add=True)  # Авто-дата создания
     # ManyToMany с Category через PostCategory
     title = models.CharField(max_length=128)
