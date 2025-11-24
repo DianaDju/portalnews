@@ -17,13 +17,15 @@ Including another URLconf
 from django.urls import path, include
 from django.contrib import admin
 from django.shortcuts import render
+from django.views.generic import RedirectView
 
 def about_view(request):
     return render(request, 'about.html', {'flatpage': {'content': 'Это текст о проекте. Повторяется для теста.'}})
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('news/', include('news.urls'))
+    path('news/', include('news.urls')),
+    path('', RedirectView.as_view(url='/news/'), name='home'),
     # ... другие
 ]
 

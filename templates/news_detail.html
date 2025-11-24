@@ -1,24 +1,18 @@
-{% extends 'default.html' %}
-{% load static %}
-{% load custom_filters %}
+{% block content %}  <!-- Блок для основного содержимого -->
+<h1>{{ news.title }}</h1>  <!-- Заголовок статьи -->
+<p>{{ news.text }}</p>  <!-- Полное содержание -->
+<p>Автор: {{ news.author }}, Дата: {{ news.time_created }}</p>  <!-- Информация об авторе и дате -->
+<a href="{% url 'news:edit' pk=news.pk %}">Редактировать</a> | <a href="{% url 'news:delete' pk=news.pk %}">Удалить</a>  <!-- Ссылки на редактирование и удаление, добавлено для навигации -->
 
-{% block title %}{{ news.title|censor }} - Portal News{% endblock %}
-
-{% block content %}
-<div class="container mt-4">
-    <div class="card shadow">
-        <div class="card-body">
-            <h1 class="card-title">{{ news.title|censor }}</h1>  <!-- Заголовок с фильтром -->
-            <p class="card-text"><strong>Дата публикации:</strong> {{ formatted_date }}  <!-- Формат d.m.Y -->
-            </p>
-            <p class="card-text"><strong>Автор:</strong> {{ news.author.author_user.username }}</p>
-            <p class="card-text"><strong>Тип:</strong> {{ news.get_post_type_display }}</p>
-            <p class="card-text"><strong>Рейтинг:</strong> {{ news.rating }}</p>
-            <hr>
-            <div class="news-text">
-                {{ news.text|censor }}  <!-- Полный текст с фильтром -->
-            </div>
-        </div>
+<!-- Опционально: секция для комментариев (если реализованы позже) -->
+<h2>Комментарии</h2>
+{% for comment in article.comments.all %}  <!-- Предполагаем, что related_name='comments' в модели Comment -->
+    <div class="comment">
+        <p>{{ comment.text }}</p>
+        <p>Автор: {{ comment.author }}, Дата: {{ comment.created_at }}</p>
     </div>
-</div>
+{% empty %}
+    <p>Комментариев нет.</p>
+{% endfor %}
+
 {% endblock %}

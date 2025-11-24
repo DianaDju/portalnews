@@ -1,0 +1,15 @@
+<!-- news/templates/news/news_detail.html -->
+{% extends 'default.html' %}  <!-- Если есть базовый шаблон -->
+
+{% block content %}
+<h1>{{ post.title }}</h1>  <!-- Заголовок поста -->
+<p><strong>Автор:</strong> {{ post.author.author_user }}</p>  <!-- Автор -->
+<p><strong>Тип:</strong> {{ post.post_type }}</p>  <!-- Тип поста -->
+<p><strong>Рейтинг поста:</strong> {{ post.rating }}</p>  <!-- Если есть поле rating -->
+<p><strong>Рейтинг автора:</strong> {{ post.author.rating_author }}</p>  <!-- Рейтинг автора -->
+<p>{{ post.text }}</p>  <!-- Содержимое поста -->
+<p><em>Дата создания: {{ post.time_created|date:"d.m.Y H:i" }}</em></p>  <!-- Если есть поле created_at -->
+
+<!-- Ссылки для навигации -->
+<a href="{% url 'news:news_list' post_type=post.post_type %}">Вернуться к списку {{ post.post_type }}</a>
+{% endblock %}
