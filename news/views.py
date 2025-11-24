@@ -15,7 +15,7 @@ def news_list(request, post_type=None):
         posts = Post.objects.filter(post_type=post_type).order_by('-time_created')
         is_filtered = True
         page_obj = None  # Без пагинации для фильтрованных
-    else:  # Для главной /news/ — все посты с пагинацией
+    else:  
         posts = Post.objects.all().order_by('-time_created')  # Все посты: новости + статьи
         is_filtered = False
         paginator = Paginator(posts, 10)  # 10 постов на страницу
@@ -24,7 +24,7 @@ def news_list(request, post_type=None):
 
     context = {
         'posts': posts if post_type else None,  # Для фильтрованных — полный список
-        'page_obj': page_obj,  # Для главной — пагинированный объект
+        'page_obj': page_obj, 
         'post_type': post_type,
         'is_filtered': is_filtered,
     }
@@ -51,7 +51,7 @@ def news_search(request):
         author = form.cleaned_data.get('author')
         date_from = form.cleaned_data.get('date_from')
 
-        # Строим фильтр с Q для комбинации критериев
+       
         query = Q()
         if title:
             query &= Q(title__icontains=title)  # Поиск по названию (регистронезависимый)
@@ -91,7 +91,7 @@ def create_post(request, post_type):
     return render(request, 'news/create.html', context)
 
 
-# Редактирование (общее, аналогично)
+
 @login_required
 def edit_post(request, post_type, pk):
     post = get_object_or_404(Post, pk=pk, post_type=post_type)
@@ -99,7 +99,6 @@ def edit_post(request, post_type, pk):
         form = PostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
             form.save()
-            # Обнови рейтинг автора, если нужно
             author = post.author
             author.update_rating()
             return redirect('news:detail', post_type=post.post_type, pk=post.pk)
@@ -117,7 +116,7 @@ def delete_post(request, post_type, pk):
         author = post.author
         post.delete()  # Удаляем пост
         author.update_rating()  # Обновляем рейтинг автора (комментарии/посты пересчитаются)
-        return redirect('news_list')  # Или 'index', куда перенаправить после удаления
+        return redirect('news_list')  
     context = {
         'post': post,
         'post_type': post_type  # Добавляем явно из URL
