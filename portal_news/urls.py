@@ -25,7 +25,6 @@ def about_view(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('news/', include('news.urls')),
-    path('articles/', include('articles.urls')),
     path('', RedirectView.as_view(url='/news/'), name='home'),
     # ... другие
 ]

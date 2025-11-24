@@ -45,7 +45,7 @@ class Post(models.Model):
         (NEWS, 'Новость'),
     ]
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='post_set')  # Один ко многим с Author
-    post_type = models.CharField(max_length=2, choices=TYPE_CHOICES, default=NEWS)  # Тип: статья или новость
+    post_type = models.CharField(max_length=10, choices=[('news', 'News'), ('article', 'Article')], default='news')  # Тип: статья или новость
     time_created = models.DateTimeField(auto_now_add=True)  # Авто-дата создания
     # ManyToMany с Category через PostCategory
     title = models.CharField(max_length=128)

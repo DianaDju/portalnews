@@ -1,13 +1,27 @@
 from django.urls import path
 from . import views
 
-app_name = 'news'  # Namespace для URL в шаблонах (например, {% url 'news:detail' pk=news.id %})
+app_name = 'news'  # Namespace остаётся
 
 urlpatterns = [
-    path('', views.news_list, name='list'), # Главная страница: список новостей (/news/)
-    path('<int:pk>/', views.news_detail, name='detail'),
-    path('search/', views.news_search, name='news_search'),# Детальная страница: новость по ID (/news/1/)
-    path('create/', views.news_create, name='create'),  # Создание новости
-    path('<int:pk>/edit/', views.news_edit, name='edit'),  # Редактирование новости
-    path('<int:pk>/delete/', views.news_delete, name='delete'),  # Удаление новости
+    # Все посты (/news/) — без post_type, имя 'all_posts'
+    path('', views.news_list, name='all_posts'),
+
+    # Список по типу (/news/news/, /news/article/) — требует post_type
+    path('<str:post_type>/', views.news_list, name='news_list'),
+
+    # Детали поста (/news/news/1/, /news/article/1/) — ТЕПЕРЬ С post_type!
+    path('<str:post_type>/<int:pk>/', views.news_detail, name='detail'),
+
+    # Создание поста (/news/news/create/, /news/article/create/)
+    path('<str:post_type>/create/', views.create_post, name='create'),
+
+    # Редактирование (/news/news/1/edit/, /news/article/1/edit/)
+    path('<str:post_type>/<int:pk>/edit/', views.edit_post, name='edit'),
+
+    # Удаление (/news/news/1/delete/, /news/article/1/delete/)
+    path('<str:post_type>/<int:pk>/delete/', views.delete_post, name='delete'),
+
+    # Поиск (/news/search/) — как раньше
+    path('search/', views.news_search, name='news_search'),
 ]
