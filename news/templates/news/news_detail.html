@@ -1,5 +1,4 @@
-<!-- news/templates/news/news_detail.html -->
-{% extends 'default.html' %}  <!-- Если есть базовый шаблон -->
+{% extends 'base.html' %}  <!-- Если есть базовый шаблон -->
 
 {% block content %}
 <h1>{{ post.title }}</h1>  <!-- Заголовок поста -->
@@ -10,6 +9,15 @@
 <p>{{ post.text }}</p>  <!-- Содержимое поста -->
 <p><em>Дата создания: {{ post.time_created|date:"d.m.Y H:i" }}</em></p>  <!-- Если есть поле created_at -->
 
+<!-- Кнопки для редактирования и удаления поста (только для автора или пользователей с разрешением) -->
+{% if user.is_authenticated %}
+    {% if user == post.author.author_user or perms.news.can_edit_post %}
+        <a href="{% url 'news:edit' post_type=post.post_type pk=post.pk %}" class="btn btn-primary">Редактировать пост</a>
+        <a href="{% url 'news:delete' post_type=post.post_type pk=post.pk %}" class="btn btn-danger" onclick="return confirm('Вы уверены, что хотите удалить этот пост?')">Удалить пост</a>
+    {% endif %}
+{% endif %}
+
 <!-- Ссылки для навигации -->
 <a href="{% url 'news:news_list' post_type=post.post_type %}">Вернуться к списку {{ post.post_type }}</a>
 {% endblock %}
+

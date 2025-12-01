@@ -2,14 +2,13 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-
 class Author(models.Model):
     """Модель автора, связанная с пользователем Django. Хранит рейтинг автора на основе постов и комментариев."""
     author_user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='author_profile')
     rating_author = models.SmallIntegerField(default=0)  # Рейтинг автора, обновляется автоматически
 
     def __str__(self):
-        return f"{self.author_user.username} (Author)" # type: ignore[attr-defined]
+        return self.author_user.username
 
     def update_rating(self):
         """ Обновляет рейтинг автора на основе сумм рейтингов его постов и комментариев.
@@ -44,10 +43,10 @@ class Post(models.Model):
         (ARTICLE, 'Статья'),
         (NEWS, 'Новость'),
     ]
-    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='post_set')  # Один ко многим с Author
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
     post_type = models.CharField(max_length=10, choices=[('news', 'News'), ('article', 'Article')], default='news')  # Тип: статья или новость
     time_created = models.DateTimeField(auto_now_add=True)  # Авто-дата создания
-    # ManyToMany с Category через PostCategory
+    categories = models.ManyToManyField(Category, through='PostCategory', related_name='post')
     title = models.CharField(max_length=128)
     text = models.TextField()
     rating = models.SmallIntegerField(default=0)
@@ -71,6 +70,13 @@ class Post(models.Model):
 
         return self.text[:124] + "..."
 
+    class Meta:
+        permissions = [('can_add_news_post', 'Can add news post'),
+            ("can_create_post", "Can create post"),
+               ("can_edit_post", "Can edit post"),]
+
+
+
 
 class PostCategory(models.Model):  # Промежуточная для ManyToMany
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -78,7 +84,6 @@ class PostCategory(models.Model):  # Промежуточная для ManyToMan
 
     def __str__(self):
         return f"{self.post.title} - {self.category.name_category}" # type: ignore[attr-defined]
-
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comment_set')  # Один ко многим с Post

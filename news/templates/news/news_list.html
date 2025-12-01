@@ -1,39 +1,149 @@
-{% extends 'default.html' %}
-{% block content %}
-<h1>{% if is_filtered %} {{ post_type|title }} {% else %} Новости {% endif %}</h1>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    {% load socialaccount %}
+    <meta charset="UTF-8">
+    <title>Новости - PortalNews</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .welcome {
+            background-color: #e7f3ff;
+            border: 2px solid #007bff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .welcome h2 {
+            color: #007bff;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 0;
+        }
+        .welcome p { font-size: 16px; margin: 10px 0; }
+        .welcome a, .welcome button {
+            color: #007bff;
+            text-decoration: none;
+            padding: 8px 12px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            margin: 5px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+        .welcome a:hover, .welcome button:hover {
+            background-color: #007bff;
+            color: white;
+        }
+        .button-container { margin-top: 10px; }
+        .logout-form, form { display: inline-block; margin: 5px; }  /* Inline для форм */
+        .guest { background-color: #f8f9fa; padding: 15px; border-radius: 5px; text-align: center; }
+        .news-item { padding: 10px; border-bottom: 1px solid #ddd; }
+        .social-section { margin-top: 20px; text-align: center; }
+        /* Стили для сообщений */
+        .messages { margin: 10px 0; }
+        .messages .alert { padding: 10px; border-radius: 5px; margin: 5px 0; }
+        .messages .alert-success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .messages .alert-warning { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        .messages .alert-error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        /* Стили для постов */
+        .post { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .post h2 { color: #007bff; }
+        .pagination { text-align: center; margin: 20px 0; }
+        .pagination a { padding: 5px 10px; margin: 0 5px; border: 1px solid #007bff; border-radius: 3px; text-decoration: none; }
+        .pagination a:hover { background-color: #007bff; color: white; }
+    </style>
+</head>
+<body>
+    <h1>PortalNews</h1>
 
-{% if page_obj %}  <!-- Для главной: пагинированный список -->
-    {% for post in page_obj %}
-        <div class="post">
-            <h2><a href="{% url 'news:detail' post_type=post.post_type pk=post.pk %}">{{ post.title }}</a></h2>
-            <p>{{ post.text|truncatewords:20 }}</p>
-            <small>Автор: {{ post.author.user }} | Дата: {{ post.time_created }}</small>
+    <!-- Блок сообщений -->
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
         </div>
-    {% empty %}
-        <p>Нет новостей.</p>
-    {% endfor %}
+    {% endif %}
 
-    <!-- Навигация по страницам -->
-    <div class="pagination">
-        {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-secondary">Предыдущая</a>
-        {% endif %}
-        <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}" class="btn btn-primary">Следующая</a>
+    <div class="welcome">
+        {% if user.is_authenticated %}
+            <h2>Добро пожаловать, {{ user.username }}!</h2>
+            <p>Ваш email: {{ user.email }}</p>
+            <p>Статус: {% if user.is_staff %}Администратор{% else %}Пользователь{% endif %}</p>
+
+            <div class="button-container">
+                <a href="{% url 'news:profile_detail' %}">Посмотреть профиль</a>
+
+
+                <!-- Кнопка выхода -->
+                <form method="post" action="{% url 'account_logout' %}" class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="action-button">Выйти</button>
+                </form>
+
+                <!-- Кнопка "Стать автором" — только если НЕ автор -->
+                {% if not is_author %}
+                    <form method="POST" action="{% url 'news:become_author' post_type=post_type|default:'news' %}">
+                        {% csrf_token %}
+                        <button type="submit">Стать автором</button>
+                    </form>
+                {% endif %}
+
+                <!-- Кнопка "Создать пост" — только если автор -->
+                {% if is_author %}
+                    <a href="{% url 'news:create' post_type=post_type|default:'news' %}">Создать пост</a>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="guest">
+                <h2>Гостевой режим</h2>
+                <p>Войдите или зарегистрируйтесь!<br><p>
+                <a href="/accounts/login/">Войти</a> | <a href="/accounts/signup/">Регистрация</a>
+                <hr>
+                <h3>Или через социальные сети:</h3>
+                <a href="{% provider_login_url 'yandex' %}" style="display: inline-block; background: #ffcc00; color: black; padding: 10px 15px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 5px;">Войти через Yandex</a>
+                </p>
+            </div>
         {% endif %}
     </div>
-{% else %}  <!-- Для фильтрованных: полный список без пагинации -->
-    {% for post in posts %}
-        <div class="post">
-            <h2><a href="{% url 'news:detail' post_type=post.post_type pk=post.pk %}">{{ post.title }}</a></h2>
-            <p>{{ post.text|truncatewords:20 }}</p>
-            <small>Автор: {{ post.author.user }} | Дата: {{ post.time_created }}</small>
+
+    {% load static %}
+
+    <h1>{% if is_filtered %}{{ post_type|title }}{% else %}Новости{% endif %}</h1>
+
+    <!-- Пагинированный список (для главной) -->
+    {% if page_obj %}
+        {% for post in page_obj %}
+            <div class="post">
+                <h2><a href="{% url 'news:detail' post_type=post.post_type pk=post.pk %}">{{ post.title }}</a></h2>
+                <p>{{ post.text|truncatewords:20 }}</p>
+                <small>Автор: {{ post.author.user }} | Дата: {{ post.time_created }}</small>
+            </div>
+        {% empty %}
+            <p>Нет новостей.</p>
+        {% endfor %}
+        <!-- Пагинация -->
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">Предыдущая</a>
+            {% endif %}
+            <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Следующая</a>
+            {% endif %}
         </div>
-    {% empty %}
-        <p>Нет постов.</p>
-    {% endfor %}
-{% endif %}
-{% endblock %}
 
-
+    <!-- Полный список (для фильтров) -->
+    {% else %}
+        {% for post in posts %}
+            <div class="post">
+                <h2><a href="{% url 'news:detail' post_type=post.post_type pk=post.pk %}">{{ post.title }}</a></h2>
+                <p>{{ post.text|truncatewords:20 }}</p>
+                <small>Автор: {{ post.author.user }} | Дата: {{ post.time_created }}</small>
+            </div>
+        {% empty %}
+            <p>Нет постов.</p>
+        {% endfor %}
+    {% endif %}
+</body>
+</html>

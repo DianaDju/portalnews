@@ -25,7 +25,8 @@ class SearchForm(forms.Form):
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'text', 'author']  # Исключаем 'type', 'rating' — они устанавливаются в view
+        fields = ['title', 'text' ]
         widgets = {
             'content': forms.Textarea(attrs={'rows': 10}),
         }
+

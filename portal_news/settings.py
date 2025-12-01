@@ -37,6 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.yandex',
     'news',
     'portal_news',
 ]
@@ -47,6 +52,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -64,6 +70,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
             ],
         },
     },
@@ -120,7 +127,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',  # Папка для твоих static-файлов (Bootstrap и т.д.)
+    BASE_DIR / 'static',
 ]
 
 
@@ -128,3 +135,72 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# AllaUTH базовые и обязательные настройки
+SITE_ID = 1  # ID для django.contrib.sites (требуется для socialaccount)
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Обычная авторизация Django
+    'allauth.account.auth_backends.AuthenticationBackend',  # AllaUTH (email/social)
+]
+
+
+ACCOUNT_SIGNUP_FIELDS = [
+    'username*',
+    'email*',      # Обязательный email
+    'password1*',  # Пароль 1
+    'password2*',  # Пароль 2
+
+]
+
+
+ACCOUNT_LOGIN_METHODS = {'email', 'username'}
+
+
+#ACCOUNT_USERNAME_REQUIRED = True
+#ACCOUNT_EMAIL_REQUIRED = True
+#ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+#ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
+ACCOUNT_PASSWORD_MIN_LENGTH = 6
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_CONFIRM_EMAIL_ON_GET = False
+SOCIALACCOUNT_AUTO_SIGNUP = True  # Авто-регистрация при соц-входе
+
+ACCOUNT_RATE_LIMITS = {}
+
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/news/'
+LOGOUT_REDIRECT_URL ='/news/'
+
+ACCOUNT_LOGIN_REDIRECT_URL = '/news/'
+ACCOUNT_SIGNUP_REDIRECT_URL = '/news/'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/news/'
+
+ACCOUNT_ADAPTER = 'account.adapters.CustomAccountAdapter'
+
+
+DEFAULT_FROM_EMAIL = 'noreply@portalnews.com'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+
+SOCIALACCOUNT_PROVIDERS = {
+    'yandex': {
+        'APP': {
+            'client_id': '1b77ebf285104330a9ae861208dbaab6',
+            'secret': 'c432b6751d244926a713d8030e7a4e7d',
+            'key': '',
+        },
+        'SCOPE': [
+            'login:email',
+            'login:info',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'offline',
+        },
+    }
+}
+
+
+SOCIALACCOUNT_ADAPTER = 'allauth.socialaccount.adapter.DefaultSocialAccountAdapter'
+
