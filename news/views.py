@@ -1,28 +1,32 @@
 from django.core.paginator import Paginator
 from django.db.models import Q
 from .forms import SearchForm, PostForm
-from django.shortcuts import render, get_object_or_404
-from .models import Post, Author
+from .models import Post, Author, Category, CategorySubscription
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import UpdateView
 from django.contrib.auth.models import User
-from django.urls import reverse_lazy
-from django.shortcuts import redirect
 from django.contrib.auth.models import Group, Permission
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.views.generic import DetailView
 from django.core.exceptions import PermissionDenied
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import DetailView, ListView
+from django.urls import reverse_lazy
+from .forms import SubscribeCategoryForm, UnsubscribeCategoryForm
+
+
 
 
 def news_list(request, post_type=None):
     is_filtered = False
     post_type = post_type
     is_author = request.user.is_authenticated and request.user.groups.filter(name='authors').exists()
+    categories = Category.objects.all()
 
     if post_type:  # Если post_type передан (фильтр по типу: /news/news/ или /news/article/)
         posts = Post.objects.filter(post_type=post_type).order_by('-time_created')
@@ -41,6 +45,7 @@ def news_list(request, post_type=None):
         'post_type': post_type,
         'is_filtered': is_filtered,
         'is_author': is_author,
+        'categories': categories,
     }
     return render(request, 'news/news_list.html', context)
 
@@ -197,3 +202,83 @@ def become_author(request,post_type):
 
 
 
+class CategoryDetailView(LoginRequiredMixin, DetailView):
+    model = Category
+    template_name = 'news/category_detail.html'
+    context_object_name = 'category'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        category = self.object
+        if category:  # Добавлено: проверка, чтобы избежать ошибок
+            context['posts'] = Post.objects.filter(
+                categories=category,
+                is_published=True
+            ).order_by('-time_created')[:10]
+            context['is_subscribed'] = CategorySubscription.objects.filter(
+                user=self.request.user,
+                category=category
+            ).exists()
+            context['subscription'] = CategorySubscription.objects.filter(
+                user=self.request.user,
+                category=category
+            ).first()
+            # DEBUG: Добавь временно для проверки (выведет в HTML)
+            context[
+                'debug_info'] = f"Категория: {category.name_category}, Постов: {len(context['posts'])}, Подписка: {context['is_subscribed']}"
+        else:
+            context['debug_info'] = "Категория не найдена!"
+        return context
+
+
+@login_required
+def subscribe_category(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+
+    if CategorySubscription.objects.filter(user=request.user, category=category).exists():
+        messages.warning(request, 'Вы уже подписаны на эту категорию.')
+    else:
+        try:
+            subscription = CategorySubscription.objects.create(user=request.user, category=category)
+            messages.success(request, f'Вы успешно подписались на категорию "{category.name_category}".')
+        except Exception as e:
+            messages.error(request, f'Ошибка при подписке: {e}')
+    return redirect('news:category-detail', pk=category.id)
+
+
+@login_required
+def unsubscribe_category(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    subscription = get_object_or_404(
+        CategorySubscription,
+        user=request.user,
+        category=category
+    )
+    form = UnsubscribeCategoryForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        subscription.delete()
+        messages.success(request, f'Вы отписались от категории "{category.name_category}".')
+    else:
+        messages.error(request, 'Ошибка при отписке.')
+    return redirect('news:category-detail', pk=category.id)
+
+
+
+
+class PostDetailView(LoginRequiredMixin, DetailView):
+    model = Post
+    template_name = 'news/post_detail.html'
+    context_object_name = 'post'
+
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        # Если не опубликован — 404 (опционально)
+        if not obj.is_published:
+            from django.http import Http404
+            raise Http404("Пост не опубликован.")
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['comments'] = self.object.comment_set.all().order_by('-time_created')
+        return context

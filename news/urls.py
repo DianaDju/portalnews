@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import UpdateProfileView,ProfileDetailView
+from .views import UpdateProfileView,ProfileDetailView, PostDetailView
 
 
 app_name = 'news'  # Namespace остаётся
@@ -9,6 +9,15 @@ urlpatterns = [
     # Смотрим детали профиля и редактируем
     path('profile_detail/', ProfileDetailView.as_view(), name='profile_detail'),
     path('update_profile/', UpdateProfileView.as_view(), name='update_profile'),
+
+    # Подписываемся на категории/Отписываемся с категории
+    path('category/<int:pk>/', views.CategoryDetailView.as_view(), name='category-detail'),
+    path('category/<int:category_id>/subscribe/', views.subscribe_category, name='subscribe-category'),
+    path('category/<int:category_id>/unsubscribe/', views.unsubscribe_category, name='unsubscribe-category'),
+
+    #Детали постов
+    path('<int:pk>/', PostDetailView.as_view(), name='post_detail'),
+
 
     # Все посты (/news/) — без post_type, имя 'all_posts'
     path('', views.news_list, name='all_posts'),

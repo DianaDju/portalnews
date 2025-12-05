@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.urls import reverse
 
 
 class Author(models.Model):
@@ -30,10 +32,31 @@ class Author(models.Model):
         self.save()
 
 class Category(models.Model):
-    name_category = models.CharField(max_length=64, unique=True)  # Уникальное название
+    name_category = models.CharField(max_length=64, unique=True)
 
     def __str__(self):
         return self.name_category
+
+    def subscribers(self):
+        """Возвращает QuerySet пользователей, подписанных на эту категорию."""
+        return User.objects.filter(categorysubscription__category=self)
+
+    def is_subscribed(self, user):
+        """Проверяет, подписан ли конкретный user на эту категорию."""
+        return CategorySubscription.objects.filter(user=user, category=self).exists()
+
+
+
+class CategorySubscription(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    subscribed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'category')  # Предотвращает дубли
+
+    def __str__(self):
+        return f"{self.user.username} → {self.category.name_category}"
 
 
 class Post(models.Model):
@@ -46,10 +69,11 @@ class Post(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     post_type = models.CharField(max_length=10, choices=[('news', 'News'), ('article', 'Article')], default='news')  # Тип: статья или новость
     time_created = models.DateTimeField(auto_now_add=True)  # Авто-дата создания
-    categories = models.ManyToManyField(Category, through='PostCategory', related_name='post')
+    categories = models.ManyToManyField(Category, through='PostCategory', related_name='post', blank=False)
     title = models.CharField(max_length=128)
     text = models.TextField()
     rating = models.SmallIntegerField(default=0)
+    is_published = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.title} ({self.get_post_type_display()})" # type: ignore[attr-defined]
@@ -69,6 +93,18 @@ class Post(models.Model):
                    str: Короткий текст превью. """
 
         return self.text[:124] + "..."
+
+    def clean(self):
+        super().clean()
+        if self.pk:
+            if not self.categories.exists():
+                raise ValidationError({
+                    'categories': 'Пост должен иметь хотя бы одну категорию.'
+                })
+
+    def get_absolute_url(self):
+
+        return reverse('news:detail', args=[self.post_type, self.id])
 
     class Meta:
         permissions = [('can_add_news_post', 'Can add news post'),

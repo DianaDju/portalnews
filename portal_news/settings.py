@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-z*)_dq^$^d=m)n$2jm_cc88r2^-hw)qf9_%6+2-edc#5)5u_-+
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+SITE_BASE_URL = 'http://127.0.0.1:8000'
 
 
 # Application definition
@@ -38,11 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'django_apscheduler',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.yandex',
-    'news',
+    'news.apps.NewsConfig',
     'portal_news',
 ]
 
@@ -114,11 +116,14 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
+
+
+TIME_ZONE = 'Asia/Bishkek'
 USE_TZ = True
+
 
 
 # Static files (CSS, JavaScript, Images)
@@ -179,8 +184,18 @@ ACCOUNT_LOGOUT_REDIRECT_URL = '/news/'
 ACCOUNT_ADAPTER = 'account.adapters.CustomAccountAdapter'
 
 
-DEFAULT_FROM_EMAIL = 'noreply@portalnews.com'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+# Используем SMTP через SSL
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True  # Для порта 465 обязательно SSL
+EMAIL_HOST_USER = 'dzhu.diana27@yandex.ru'  # полный логин с @yandex.ru
+EMAIL_HOST_PASSWORD = 'ssevtmshqkxgzekx'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
 
 
 
@@ -203,4 +218,3 @@ SOCIALACCOUNT_PROVIDERS = {
 
 
 SOCIALACCOUNT_ADAPTER = 'allauth.socialaccount.adapter.DefaultSocialAccountAdapter'
-

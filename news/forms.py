@@ -1,6 +1,7 @@
-from django import forms
-from .models import Post  # Не обязательно, но для справки
 
+from .models import Post  # Не обязательно, но для справки
+from django import forms
+from .models import Category, CategorySubscription
 
 class SearchForm(forms.Form):
     title = forms.CharField(
@@ -30,3 +31,26 @@ class PostForm(forms.ModelForm):
             'content': forms.Textarea(attrs={'rows': 10}),
         }
 
+
+class SubscribeCategoryForm(forms.ModelForm):
+    """Форма для подписки на категорию."""
+    class Meta:
+        model = CategorySubscription
+        fields = []  # Нет полей: данные из view (user, category)
+
+    def __init__(self, *args, user=None, category=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+        self.category = category
+        self.instance = CategorySubscription(user=self.user, category=self.category)
+
+class UnsubscribeCategoryForm(forms.ModelForm):
+    """Форма для отписки от категории (удаление)."""
+    class Meta:
+        model = CategorySubscription
+        fields = []  # Нет полей
+
+    def __init__(self, *args, user=None, category=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+        self.category = category
