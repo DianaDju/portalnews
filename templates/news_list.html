@@ -1,27 +1,36 @@
-{% extends 'default.html' %}
-{% load static %}  <!-- Для Bootstrap -->
-{% load custom_filters %}  <!-- Для |censor -->
-
-{% block title %}Список новостей - Portal News{% endblock %}
+{% extends "default.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">Все новости (от новых к старым)</h2>
-    {% for news in news_list %}
-    <div class="card mb-3 shadow-sm">  <!-- Bootstrap card для каждой новости -->
-        <div class="card-body">
-            <h5 class="card-title">
-                <a href="{% url 'news:detail' news.id %}" class="text-decoration-none">
-                    {{ news.title|censor }}  <!-- Заголовок с фильтром -->
-                </a>
-            </h5>
-            <p class="card-text"><strong>Дата:</strong> {{ news.time_created|date:"d.m.Y H:i" }}</p>
-            <p class="card-text"><strong>Превью:</strong> {{ news.text|slice:"20"|censor }}...  <!-- 20 символов + фильтр -->
-            </p>
-        </div>
+<h1>Новости</h1>
+{% for news in news %}
+    <div class="news-item">
+        <h2>{{ news.title }}</h2>
+        <p><strong>Дата:</strong> {{ news.date|date:"d.m.Y H:i" }} | <strong>Автор:</strong> {{ news.author }}</p>
+        <p>{{ news.text|truncatewords:30 }}</p>  <!-- Кратко, чтобы не растягивать -->
+        <a href="#">Подробнее</a>  <!-- Если есть detail view -->
     </div>
-    {% empty %}
-    <p class="alert alert-info">Нет новостей пока.</p>
+{% empty %}
+    <p>Новостей пока нет.</p>
+{% endfor %}
+
+<!-- Пагинация (из шага 1, добавь в конец) -->
+<div class="pagination">
+    {% if news.has_previous %}
+        <a href="?page=1">&laquo; Первая</a>
+        <a href="?page={{ news.previous_page_number }}">Предыдущая</a>
+    {% endif %}
+
+    {% for num in news.paginator.page_range %}
+        {% if news.number == num %}
+            <strong>{{ num }}</strong>
+        {% elif num > news.number|add:-3 and num < news.number|add:3 %}
+            <a href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
     {% endfor %}
+
+    {% if news.has_next %}
+        <a href="?page={{ news.next_page_number }}">Следующая</a>
+        <a href="?page={{ news.paginator.num_pages }}">Последняя &raquo;</a>
+    {% endif %}
 </div>
 {% endblock %}

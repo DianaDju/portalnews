@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Создать {{ post_type|title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Создать {{ post_type|title }}</h1>
+
+    <!-- Breadcrumb или навигация -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'news:all_posts' %}">Все посты</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'news:news_list' post_type=post_type %}">{{ post_type|title }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Создать</li>
+        </ol>
+    </nav>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Создать</button>
+    </form>
+
+    <!-- Ссылка "Отмена" на список -->
+    <a href="{% url 'news:news_list' post_type=post_type %}" class="btn btn-secondary mt-3">Отмена</a>
+</div>
+{% endblock %}
+
+

@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary">Стать автором</button>
+  </form>
+{% endblock %}

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Поиск новостей</title>
+    <style>
+        form { margin: 20px 0; }
+        input { margin: 5px 0; padding: 5px; width: 200px; }
+        button { padding: 10px; background: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Поиск новостей</h1>
+
+
+    <form method="get">
+        <div>
+            <label for="{{ form.title.id_for_label }}">Заголовок новости:</label><br>
+            {{ form.title }}  <!-- <- Это input для заголовка -->
+        </div>
+        <div>
+            <label for="{{ form.author.id_for_label }}">Автор (имя автора):</label><br>
+            {{ form.author }}  <!-- <- Input для автора -->
+        </div>
+        <div>
+            <label for="{{ form.date.id_for_label }}">Дата (дд.мм.гггг):</label><br>
+            {{ form.date }}  <!-- <- Input для даты (календарь) -->
+        </div>
+        <button type="submit">Искать</button>
+        {% if request.GET %}
+            <a href="{% url 'news:news_search' %}">Очистить поиск</a>
+        {% endif %}
+    </form>
+
+    {% if page_obj %}
+        <h2>Результаты поиска ({{ page_obj.paginator.count }} найдено)</h2>
+        {% for post in page_obj %}
+            <div style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
+                <h3>{{ post.title }}</h3>
+                <p>Автор: {{ post.author.author_user.username|default:post.author|default:"Неизвестен" }}</p>
+                <p>Дата: {{ post.time_created|date:"d.m.Y H:i" }}</p>
+            </div>
+        {% empty %}
+            <p>Нет постов на этой странице.</p>
+        {% endfor %}
+
+        <!-- Пагинация -->
+        <div class="pagination" style="margin-top: 20px;">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?{{ request.GET.urlencode }}&page=1">&laquo; первая</a>
+                    <a href="?{{ request.GET.urlencode }}&page={{ page_obj.previous_page_number }}">предыдущая</a>
+                {% endif %}
+
+                <span class="current">
+                    Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}.
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?{{ request.GET.urlencode }}&page={{ page_obj.next_page_number }}">следующая</a>
+                    <a href="?{{ request.GET.urlencode }}&page={{ page_obj.paginator.num_pages }}">последняя &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    {% else %}
+        <p>Нет результатов поиска. Попробуйте другие критерии.</p>
+    {% endif %}
+</body>
+</html>

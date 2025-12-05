@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load socialaccount %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 50px auto; padding: 30px; background: #e7f3ff; border: 2px solid #007bff; border-radius: 10px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    <h2 style="color: #007bff; font-size: 24px; margin-bottom: 20px;">Вход через Yandex</h2>
+
+    <!-- Показ Yandex-инфо (email, имя, если переданы) -->
+    <div style="background: #ffcc00; color: black; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: bold;">
+        Yandex Аккаунт
+    </div>
+
+    {% if account %}
+        <p style="font-size: 16px; color: #333; margin: 10px 0;"><strong>Email:</strong> {{ account.email|default:"Не указан" }}</p>
+        <p style="font-size: 16px; color: #333; margin: 10px 0;"><strong>Имя:</strong> {{ account.first_name|default:"Не указано" }} {{ account.last_name|default:"" }}</p>
+    {% endif %}
+
+    <p style="font-size: 16px; color: #666; margin: 20px 0;">
+        {% if signup %}
+            Вы будете зарегистрированы в PortalNews с Yandex-аккаунтом.
+        {% else %}
+            Вы войдёте в PortalNews с Yandex-аккаунтом.
+        {% endif %}
+    </p>
+
+    <!-- Форма подтверждения (submit на callback URL) -->
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="process" value="{% if signup %}signup{% else %}login{% endif %}">
+        <input type="submit" value="Продолжить" style="background: #007bff; color: white; padding: 12px 30px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; margin: 10px;">
+    </form>
+
+    <hr style="margin: 20px 0; border: 1px solid #ddd;">
+    <p><a href="{% url 'account_login' %}" style="color: #007bff; text-decoration: none; font-weight: bold;">← Вернуться к входу</a></p>
+</div>
+
+<style>
+    body { font-family: Arial, sans-serif; background: #f8f9fa; }  <!-- Лёгкий фон для страницы -->
+</style>
+{% endblock %}

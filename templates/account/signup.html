@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load socialaccount %}
+
+
+{% block content %}
+<h1>Регистрация в PortalNews</h1>
+
+<!-- Общие ошибки формы (красным, если есть) -->
+{% if form.errors %}
+    <div style="color: red; background: #ffe6e6; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+        <h3>Ошибки регистрации:</h3>
+        {{ form.non_field_errors }}
+        <ul>
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <li>{{ field|title }}: {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+<form method="post" action="{% url 'account_signup' %}">
+    {% csrf_token %}
+
+
+    <div style="margin-bottom: 15px;">
+        <label for="{{ form.username.id_for_label }}">Username:</label><br>
+        {{ form.username }}
+        {% if form.username.errors %}
+            <span style="color: red;">{{ form.username.errors }}</span>
+        {% endif %}
+    </div>
+
+
+    <div style="margin-bottom: 15px;">
+        <label for="{{ form.email.id_for_label }}">Email:</label><br>
+        {{ form.email }}
+        {% if form.email.errors %}
+            <span style="color: red;">{{ form.email.errors }}</span>
+        {% endif %}
+    </div>
+
+
+    <div style="margin-bottom: 15px;">
+        <label for="{{ form.password1.id_for_label }}">Пароль:</label><br>
+        {{ form.password1 }}
+        {% if form.password1.errors %}
+            <span style="color: red;">{{ form.password1.errors }}</span>
+        {% endif %}
+        <small style="color: #666;">Мин. 6 символов, буквы + числа.</small>
+    </div>
+
+
+    <div style="margin-bottom: 15px;">
+        <label for="{{ form.password2.id_for_label }}">Подтвердите пароль:</label><br>
+        {{ form.password2 }}
+        {% if form.password2.errors %}
+            <span style="color: red;">{{ form.password2.errors }}</span>
+        {% endif %}
+    </div>
+
+    <button type="submit" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Зарегистрироваться</button>
+</form>
+
+<hr style="margin: 20px 0;">
+<h3>Или через социальные сети</h3>
+<a href="{% provider_login_url 'yandex' signup=True %}" style="display: inline-block; background: #ffcc00; color: black; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold;">Регистрация через Yandex</a>
+
+<div style="margin-top: 20px; text-align: center;">
+    <p>Уже есть аккаунт? <a href="{% url 'account_login' %}">Войти</a></p>
+</div>
+{% endblock %}

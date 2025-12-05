@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load socialaccount %}
+
+
+{% block content %}
+<h2>Вход в систему</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Войти</button>
+</form>
+
+<hr style="margin: 20px 0;">
+<h3>Или войдите через социальные сети</h3>
+<a href="{% provider_login_url 'yandex' %}" style="display: inline-block; background: #ffcc00; color: black; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">Войти через Yandex</a>
+
+<p><a href="{% url 'account_signup' %}">Нет аккаунта? Регистрация</a></p>
+{% endblock %}
