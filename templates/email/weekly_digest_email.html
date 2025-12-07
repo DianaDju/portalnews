@@ -15,7 +15,8 @@
         <ul>
         {% for post in posts %}
             <li style="margin-bottom: 10px;">
-                <a href="{{ site_url }}{{ post.get_absolute_url }}" style="color: #1a73e8; font-weight: bold;">
+                <!-- Используем full_url, который формируется в таске -->
+                <a href="{{ post.full_url }}" style="color: #1a73e8; font-weight: bold;">
                     {{ post.title }}
                 </a>
                 <p style="font-size: 14px; color: #555;">{{ post.text|truncatechars:150 }}</p>
@@ -28,4 +29,3 @@
     </div>
 </body>
 </html>
-

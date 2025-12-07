@@ -103,8 +103,7 @@ class Post(models.Model):
                 })
 
     def get_absolute_url(self):
-
-        return reverse('news:detail', args=[self.post_type, self.id])
+            return reverse('news:detail', args=[self.post_type, self.id])
 
     class Meta:
         permissions = [('can_add_news_post', 'Can add news post'),

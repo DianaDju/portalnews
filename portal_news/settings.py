@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -186,14 +187,21 @@ ACCOUNT_ADAPTER = 'account.adapters.CustomAccountAdapter'
 
 
 
-# Используем SMTP через SSL
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 465
-EMAIL_USE_SSL = True  # Для порта 465 обязательно SSL
-EMAIL_HOST_USER = 'dzhu.diana27@yandex.ru'  # полный логин с @yandex.ru
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'dzhu.diana27@yandex.com'
 EMAIL_HOST_PASSWORD = 'ssevtmshqkxgzekx'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+CELERY_BROKER_URL = 'redis://:XWnqRwXqjhJ4Ge82xL6tI7OmHzDXBQD8@redis-16282.c61.us-east-1-3.ec2.cloud.redislabs.com:16282/0'
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Bishkek'  # чтобы задачи запускались по Бишкеку
 
 
 
@@ -218,3 +226,4 @@ SOCIALACCOUNT_PROVIDERS = {
 
 
 SOCIALACCOUNT_ADAPTER = 'allauth.socialaccount.adapter.DefaultSocialAccountAdapter'
+
