@@ -1,0 +1,55 @@
+[2025-12-11 23:42:18,335] INFO autoreload: Watching for file changes with StatReloader
+[2025-12-11 23:44:03,997] INFO autoreload: Watching for file changes with StatReloader
+[2025-12-12 00:04:21,356] INFO autoreload: C:\Users\user\PycharmProjects\portalnews_news\portal_news\settings.py changed, reloading.
+[2025-12-12 00:04:25,377] INFO autoreload: Watching for file changes with StatReloader
+[2025-12-12 00:11:05,649] INFO test_logging: INFO test message for general.log
+[2025-12-12 00:12:20,497] INFO test_logging: INFO test message for general.log
+[2025-12-12 00:14:26,738] INFO <console>: TEST INFO message in console
+[2025-12-12 00:14:35,648] WARNING <console>: TEST WARNING message in console
+[2025-12-12 00:14:45,869] ERROR <console>: TEST ERROR message in console
+[2025-12-12 00:19:27,870] INFO <string>: TEST INFO message in console
+[2025-12-12 00:19:27,870] WARNING <string>: TEST WARNING message in console
+[2025-12-12 00:19:27,871] ERROR <string>: TEST ERROR message in console
+[2025-12-12 00:19:27,871] INFO <string>: TEST INFO message in general.log
+[2025-12-12 00:19:27,871] WARNING <string>: TEST WARNING message in general.log
+[2025-12-12 00:19:27,871] ERROR <string>: TEST ERROR message in errors.log
+Traceback (most recent call last):
+  File "<string>", line 29, in <module>
+ZeroDivisionError: division by zero
+[2025-12-12 00:19:27,872] ERROR <string>: TEST ERROR message for email
+[2025-12-12 00:39:09,429] INFO test_logging_run: TEST INFO message in console
+[2025-12-12 00:39:09,429] WARNING test_logging_run: TEST WARNING message in console
+[2025-12-12 00:39:09,429] ERROR test_logging_run: TEST ERROR message in console
+[2025-12-12 00:39:09,429] INFO test_logging_run: TEST INFO message in general.log
+[2025-12-12 00:39:09,429] WARNING test_logging_run: TEST WARNING message in general.log
+[2025-12-12 00:39:09,430] ERROR test_logging_run: TEST ERROR message in errors.log
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\portalnews_news\news\tests\test_logging_run.py", line 29, in <module>
+    1 / 0
+    ~~^~~
+ZeroDivisionError: division by zero
+[2025-12-12 00:39:09,431] ERROR test_logging_run: TEST ERROR message for email
+[2025-12-12 00:50:58,300] INFO test_logging_full: INFO test
+[2025-12-12 00:50:58,300] WARNING test_logging_full: WARNING test
+[2025-12-12 00:50:58,300] ERROR test_logging_full: ERROR test
+[2025-12-12 00:50:58,301] ERROR test_logging_full: TEST email error
+[2025-12-12 00:54:24,486] INFO test_logging_full: INFO message
+[2025-12-12 00:54:24,486] WARNING test_logging_full: WARNING message
+[2025-12-12 00:54:24,486] ERROR test_logging_full: ERROR message
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\portalnews_news\news\tests\test_logging_full.py", line 28, in test_console_logging
+    1 / 0
+    ~~^~~
+ZeroDivisionError: division by zero
+[2025-12-12 00:54:24,561] INFO test_logging_full: INFO for general.log
+[2025-12-12 00:54:24,561] WARNING test_logging_full: WARNING for general.log
+[2025-12-12 00:55:17,987] INFO test_logging_full: INFO message
+[2025-12-12 00:55:17,987] WARNING test_logging_full: WARNING message
+[2025-12-12 00:55:17,987] ERROR test_logging_full: ERROR message
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\portalnews_news\news\tests\test_logging_full.py", line 28, in test_console_logging
+    1 / 0
+    ~~^~~
+ZeroDivisionError: division by zero
+[2025-12-12 00:55:18,064] INFO test_logging_full: INFO for general.log
+[2025-12-12 00:55:18,064] WARNING test_logging_full: WARNING for general.log

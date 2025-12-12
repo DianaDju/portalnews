@@ -210,24 +210,26 @@ class CategoryDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         category = self.object
-        if category:  # Добавлено: проверка, чтобы избежать ошибок
+
+        if category:
+            # Список последних 10 опубликованных постов категории
             context['posts'] = Post.objects.filter(
                 categories=category,
                 is_published=True
             ).order_by('-time_created')[:10]
+
+            # Проверка подписки пользователя на категорию
             context['is_subscribed'] = CategorySubscription.objects.filter(
                 user=self.request.user,
                 category=category
             ).exists()
+
+            # Получаем объект подписки, если он есть
             context['subscription'] = CategorySubscription.objects.filter(
                 user=self.request.user,
                 category=category
             ).first()
-            # DEBUG: Добавь временно для проверки (выведет в HTML)
-            context[
-                'debug_info'] = f"Категория: {category.name_category}, Постов: {len(context['posts'])}, Подписка: {context['is_subscribed']}"
-        else:
-            context['debug_info'] = "Категория не найдена!"
+
         return context
 
 

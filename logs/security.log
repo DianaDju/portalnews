@@ -1,0 +1,6 @@
+[2025-12-12 00:11:05,671] INFO test_logging: SECURITY test message
+[2025-12-12 00:12:20,520] INFO test_logging: SECURITY test message
+[2025-12-12 00:19:27,872] INFO <string>: TEST SECURITY message in security.log
+[2025-12-12 00:39:09,430] INFO test_logging_run: TEST SECURITY message in security.log
+[2025-12-12 00:54:24,585] INFO test_logging_full: SECURITY test message
+[2025-12-12 00:55:18,080] INFO test_logging_full: SECURITY test message
