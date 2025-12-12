@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ post.title }}</h1>
+    <p><small>{{ post.time_created|date:"d.m.Y H:i" }} | Автор: {{ post.author }} | Тип: {{ post.get_post_type_display }}</small></p>
+    <div>{{ post.text|linebreaks }}</div>
+
+    <
+    <p><strong>Preview:</strong> {{ post.preview }}</p>
+
+
+    <h2>Комментарии:</h2>
+    {% for comment in comments %}
+        <div>{{ comment.comment_user.username }}: {{ comment.text }} ({{ comment.time_created|date:"d.m.Y H:i" }})</div>
+    {% empty %}
+        <p>Нет комментариев.</p>
+    {% endfor %}
+</div>
+{% endblock %}

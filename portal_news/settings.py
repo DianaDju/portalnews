@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,9 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-z*)_dq^$^d=m)n$2jm_cc88r2^-hw)qf9_%6+2-edc#5)5u_-+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+SITE_BASE_URL = 'http://127.0.0.1:8000'
 
 
 # Application definition
@@ -37,8 +39,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'news',
-    'portal_news'
+    'django.contrib.sites',
+    'django_apscheduler',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.yandex',
+    'news.apps.NewsConfig',
+    'portal_news',
 ]
 
 MIDDLEWARE = [
@@ -47,6 +55,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -64,6 +73,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
             ],
         },
     },
@@ -107,11 +117,14 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
+
+
+TIME_ZONE = 'Asia/Bishkek'
 USE_TZ = True
+
 
 
 # Static files (CSS, JavaScript, Images)
@@ -120,7 +133,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',  # Папка для твоих static-файлов (Bootstrap и т.д.)
+    BASE_DIR / 'static',
 ]
 
 
@@ -128,3 +141,239 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# AllaUTH базовые и обязательные настройки
+SITE_ID = 1  # ID для django.contrib.sites (требуется для socialaccount)
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Обычная авторизация Django
+    'allauth.account.auth_backends.AuthenticationBackend',  # AllaUTH (email/social)
+]
+
+
+ACCOUNT_SIGNUP_FIELDS = [
+    'username*',
+    'email*',      # Обязательный email
+    'password1*',  # Пароль 1
+    'password2*',  # Пароль 2
+
+]
+
+
+ACCOUNT_LOGIN_METHODS = {'email', 'username'}
+
+
+#ACCOUNT_USERNAME_REQUIRED = True
+#ACCOUNT_EMAIL_REQUIRED = True
+#ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+#ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
+ACCOUNT_PASSWORD_MIN_LENGTH = 6
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_CONFIRM_EMAIL_ON_GET = False
+SOCIALACCOUNT_AUTO_SIGNUP = True  # Авто-регистрация при соц-входе
+
+ACCOUNT_RATE_LIMITS = {}
+
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/news/'
+LOGOUT_REDIRECT_URL ='/news/'
+
+ACCOUNT_LOGIN_REDIRECT_URL = '/news/'
+ACCOUNT_SIGNUP_REDIRECT_URL = '/news/'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/news/'
+
+ACCOUNT_ADAPTER = 'account.adapters.CustomAccountAdapter'
+
+
+
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'dzhu.diana27@yandex.com'
+EMAIL_HOST_PASSWORD = 'ssevtmshqkxgzekx'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+CELERY_BROKER_URL = 'redis://:XWnqRwXqjhJ4Ge82xL6tI7OmHzDXBQD8@redis-16282.c61.us-east-1-3.ec2.cloud.redislabs.com:16282/0'
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Bishkek'  # чтобы задачи запускались по Бишкеку
+
+
+
+
+
+SOCIALACCOUNT_PROVIDERS = {
+    'yandex': {
+        'APP': {
+            'client_id': '1b77ebf285104330a9ae861208dbaab6',
+            'secret': 'c432b6751d244926a713d8030e7a4e7d',
+            'key': '',
+        },
+        'SCOPE': [
+            'login:email',
+            'login:info',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'offline',
+        },
+    }
+}
+
+
+SOCIALACCOUNT_ADAPTER = 'allauth.socialaccount.adapter.DefaultSocialAccountAdapter'
+
+ADMINS = [
+    ('Admin', 'dzhu.diana27@yandex.com'),
+]
+
+import os
+
+LOG_DIR = os.path.join(BASE_DIR, 'logs')
+for file in ['errors.log', 'general.log', 'security.log']:
+    path = os.path.join(LOG_DIR, file)
+    if not os.path.exists(path):
+        open(path, 'a').close()
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    'filters': {
+        'debug_only': {
+            '()': 'django.utils.log.CallbackFilter',
+            'callback': lambda record: DEBUG is True,
+        },
+        'production_only': {
+            '()': 'django.utils.log.CallbackFilter',
+            'callback': lambda record: DEBUG is False,
+        },
+    },
+
+    'formatters': {
+        'console': {
+            'format': '[{asctime}] {levelname}: {message}',
+            'style': '{',
+        },
+        'console_warning': {
+            'format': '[{asctime}] {levelname} {pathname}: {message}',
+            'style': '{',
+        },
+        'file_general': {
+            'format': '[{asctime}] {levelname} {module}: {message}',
+            'style': '{',
+        },
+        'file_errors': {
+            'format': '[{asctime}] {levelname} {pathname}: {message}',
+            'style': '{',
+        },
+        'security': {
+            'format': '[{asctime}] {levelname} {module}: {message}',
+            'style': '{',
+        },
+        'email': {
+            'format': '[{asctime}] {levelname} {pathname}: {message}',
+            'style': '{',
+        },
+    },
+
+    'handlers': {
+        # Консоль DEBUG+
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'DEBUG',
+            'filters': ['debug_only'],
+            'formatter': 'console',
+        },
+        'console_warning': {
+            'class': 'logging.StreamHandler',
+            'level': 'WARNING',
+            'filters': ['debug_only'],
+            'formatter': 'console_warning',
+        },
+        # general.log INFO+ при DEBUG=False
+        'general_file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOG_DIR, 'general.log'),
+            'level': 'INFO',
+            'filters': ['production_only'],
+            'formatter': 'file_general',
+        },
+        # errors.log ERROR+ с exc_info
+        'errors_file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOG_DIR, 'errors.log'),
+            'level': 'ERROR',
+            'formatter': 'file_errors',
+        },
+        # security.log INFO+ только django.security
+        'security_file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOG_DIR, 'security.log'),
+            'level': 'INFO',
+            'formatter': 'security',
+        },
+        # Email ERROR+ без exc_info
+        'mail_admins': {
+            'class': 'django.utils.log.AdminEmailHandler',
+            'level': 'ERROR',
+            'filters': ['production_only'],
+            'formatter': 'email',
+        },
+    },
+
+    'loggers': {
+        # Основной логгер Django
+        'django': {
+            'handlers': ['console', 'console_warning', 'general_file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        # Ошибки
+        'django.request': {
+            'handlers': ['errors_file', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.server': {
+            'handlers': ['errors_file', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.template': {
+            'handlers': ['errors_file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'handlers': ['errors_file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        # Безопасность
+        'django.security': {
+            'handlers': ['security_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    }
+}
+
+# Отключаем лишние предупреждения авто-перезагрузки
+import logging
+logging.getLogger("django.utils.autoreload").setLevel(logging.WARNING)
+logging.getLogger("django.utils.autoreload.FileReloader").setLevel(logging.WARNING)
+logging.getLogger("importlib._bootstrap").setLevel(logging.WARNING)
+logging.getLogger("importlib._bootstrap_external").setLevel(logging.WARNING)
+
+

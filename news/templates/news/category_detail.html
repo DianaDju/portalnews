@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Категория {{ category.name_category }}{% endblock %}
+
+{% block content %}
+<div style="border: 1px solid red; padding: 20px; margin: 20px;">
+    <h1>Детали категории: {{ category.name_category }}</h1>
+
+    {% if user.is_authenticated %}
+        <p><strong>Пользователь:</strong> {{ user.username }}</p>
+        <p><strong>Подписан?</strong> {{ is_subscribed|yesno:"Да,Нет" }}</p>
+        {% if is_subscribed %}
+            <p>Дата подписки: {{ subscription.subscribed_at|date:"d.m.Y H:i" }}</p>
+            <form method="post" action="{% url 'news:unsubscribe-category' category.id %}">
+                {% csrf_token %}
+                <button type="submit">Отписаться</button>
+            </form>
+        {% else %}
+            <a href="{% url 'news:subscribe-category' category.id %}">Подписаться</a>
+        {% endif %}
+    {% else %}
+        <p>Не авторизован. <a href="{% url 'login' %}">Войти</a></p>
+    {% endif %}
+
+    <h2>Посты ({{ posts|length }})  </h2>
+    {% for post in posts %}
+        <div>
+            <h3><a href="{% url 'news:post_detail' post.id %}"> {{ post.title }}</a></h3>
+            <p>{{ post.preview }}</p>
+            <small>{{ post.time_created|date:"d.m.Y" }} | Автор: {{ post.author }}</small>
+        </div>
+    {% empty %}
+        <p>Нет опубликованных постов в этой категории. Добавьте в админке (с is_published=True)!</p>
+    {% endfor %}
+
+
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li style="color: green;">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+{% endblock %}
