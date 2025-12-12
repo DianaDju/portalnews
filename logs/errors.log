@@ -1,0 +1,21 @@
+[2025-12-12 00:11:05,560] ERROR C:\Users\user\PycharmProjects\portalnews_news\news\tests\test_logging.py: ERROR test message for email
+NoneType: None
+[2025-12-12 00:11:05,621] ERROR C:\Users\user\PycharmProjects\portalnews_news\news\tests\test_logging.py: ERROR test message for errors.log
+NoneType: None
+[2025-12-12 00:12:20,430] ERROR C:\Users\user\PycharmProjects\portalnews_news\news\tests\test_logging.py: ERROR test message for email
+[2025-12-12 00:12:20,458] ERROR C:\Users\user\PycharmProjects\portalnews_news\news\tests\test_logging.py: ERROR test message for errors.log
+NoneType: None
+[2025-12-12 00:54:24,488] ERROR C:\Users\user\PycharmProjects\portalnews_news\news\tests\test_logging_full.py: ERROR for email
+[2025-12-12 00:54:24,522] ERROR C:\Users\user\PycharmProjects\portalnews_news\news\tests\test_logging_full.py: ERROR for errors.log
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\portalnews_news\news\tests\test_logging_full.py", line 61, in test_errors_log
+    1 / 0
+    ~~^~~
+ZeroDivisionError: division by zero
+[2025-12-12 00:55:17,989] ERROR C:\Users\user\PycharmProjects\portalnews_news\news\tests\test_logging_full.py: ERROR for email
+[2025-12-12 00:55:18,022] ERROR C:\Users\user\PycharmProjects\portalnews_news\news\tests\test_logging_full.py: ERROR for errors.log
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\portalnews_news\news\tests\test_logging_full.py", line 61, in test_errors_log
+    1 / 0
+    ~~^~~
+ZeroDivisionError: division by zero
